@@ -1,0 +1,169 @@
+﻿@using System.Globalization
+@using System.Text
+@using SevSharks.Identity.DataAccess.Models
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+
+@model SevSharks.Identity.WebUI.Models.LoginViewModel
+@{
+    ViewBag.Title = "Вход";
+
+    bool showCaptcha = ViewBag.ShowCaptcha == true;
+}
+
+<div class="page-login">
+    <main id="RTS-bidding" class="page-login__main">
+        <h1 class="page-login__title">Имущественные торги</h1>
+        <form class="page-login__form login-form" asp-controller="Account" asp-action="Login" method="post">
+            <legeng class="login-form__title">Вход</legeng>
+            @Html.AntiForgeryToken()
+            @if (Model != null && !Model.IsSucceed && !string.IsNullOrWhiteSpace(Model.ErrorMessage))
+            {
+                <div class="form__group">
+                    <span class="form__group-validation">
+                        @Html.Raw(Model.ErrorMessage)
+                    </span>
+                </div>
+            }
+            <div class="form__group">
+                @Html.TextBoxFor(m => m.Login, new { @class = "login-form__input", placeholder = "Логин" })
+                @Html.ValidationMessageFor(m => m.Login, String.Empty, new { @class = "error--message" })
+            </div>
+            <div class="form__group">
+                @Html.PasswordFor(m => m.Password, new { @class = "login-form__input login-form__input--pass", placeholder = "Пароль" })
+                @Html.ValidationMessageFor(m => m.Password, String.Empty, new { @class = "error--message" })
+            </div>
+            @Html.HiddenFor(p => p.SignedData)
+            @Html.HiddenFor(p => p.ReturnUrl)
+            @Html.HiddenFor(p => p.ClientId)
+            <button class="login-form__btn btn btn--main" type="submit">Войти</button>
+            <a href="#" class="login-form__link link">Восстановить логин или пароль</a>
+        </form>
+        <section class="page-login__log-in log-in">
+            <span class="log-in__separator">
+                <span class="log-in__separator-text">или</span>
+                <span class="log-in__separator-line"></span>
+            </span>
+            <form asp-action="ExternalLogin" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post">
+                <button class="log-in__btn log-in__btn--esia btn btn--secondary" type="submit" name="provider" value="ЕСИА">
+                    <img src="~/img/icons/icon-esia.png" alt="" width="35" height="34px">
+                    <span>Войти через ЕСИА</span>
+                </button>
+            </form>
+            <div class="certificateTab">
+                <button class="log-in__btn btn btn--secondary">Войти с помощью сертификата</button>
+            </div>
+        </section>
+
+        <section class="page-login__log-in log-in log-in--social">
+            <span class="log-in__separator">
+                <span class="log-in__separator-text">вы можете войти через социальные сети</span>
+                <span class="log-in__separator-line"></span>
+            </span>
+            <ul class="log-in__btns social-list">
+                <li class="social-list__item">
+                    <form asp-action="ExternalLogin" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post">
+                        <button class="social-list__item-btn social-list__item-btn--vk"
+                                type="submit"
+                                name="provider"
+                                value="ВКонтакте">
+                            vk
+                        </button>
+                    </form>
+                </li>
+                <li class="social-list__item">
+                    <form asp-action="ExternalLogin" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post">
+                        <button class="social-list__item-btn social-list__item-btn--google"
+                                type="submit"
+                                name="provider"
+                                value="Google">
+                            google
+                        </button>
+                    </form>
+                </li>
+                <li class="social-list__item">
+                    <form asp-action="ExternalLogin" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post">
+                        <button class="social-list__item-btn social-list__item-btn--fc"
+                                type="submit"
+                                name="provider"
+                                value="facebook">
+                            facebook
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </section>
+    </main>
+    <footer class="page-login__footer footer-login">
+        <section class="footer-login__welcome">
+            <p class="footer-login__welcome-text">Первый раз на площадке?</p>
+            <a href="https://i.rts-tender.ru/main/home/Accreditation/Request.aspx"
+               class="footer-login__welcome-btn btn btn--secondary">
+                Аккредитация
+            </a>
+        </section>
+        <a href="#" class="footer-login__signature link">Получить электронную подпись</a>
+        <p class="footer-login__support">
+            <span class="footer-login__support-text">Колл-центр</span>
+            <span class="footer-login__support-phone">+7 (499) 653-77-00</span>
+        </p>
+    </footer>
+</div>
+
+<div class="arctic">
+    <div class="box-modal" id="certListModel">
+        <section class="popup popup--sert">
+            <button class="box-modal_close arcticmodal-close popup__close">закрыть</button>
+            <p class="popup__text">Выберите сертификат</p>
+            <ul id="certListId" class="popup__list sert-list"></ul>
+            <div class="validation__summary">
+                <span class="form__group-validation"></span>
+            </div>
+            <button id="submitSignin" class="popup__btn btn btn--main" type="submit">Войти</button>
+        </section>
+    </div>
+</div>
+<div class="arctic">
+    <div class="box-modal" id="certListEmptyModel">
+        <section class="popup popup--nosert">
+            <button class="box-modal_close arcticmodal-close popup__close">закрыть</button>
+            <div class="popup__info">
+                <p class="popup__text">У вас не установлено ни одного сертификата электронной подписи</p>
+                <a href="#" class="popup__btn btn btn--main">Получить сертификат</a>
+                <a href="#" class="popup__link link">Инструкция по установке сертификата электронной подписи</a>
+            </div>
+        </section>
+    </div>
+</div>
+<div class="arctic">
+    <div class="box-modal" id="pluginUndefinedModel">
+        <section class="popup popup--plagin">
+            <button class="box-modal_close arcticmodal-close popup__close">закрыть</button>
+            <div class="popup__info">
+                <p class="popup__text">Для входа с помощью сертификата электронной подписи необходим плагин КриптоПро</p>
+                <a href="#" class="popup__btn btn btn--main">Скачать плагин КриптопПро</a>
+            </div>
+        </section>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var dateDateForSign = @Html.Raw("\"" + Convert.ToBase64String(Encoding.UTF8.GetBytes(DateTime.UtcNow.ToString(CultureInfo.InvariantCulture))) + "\"");
+    var validateSignatureURL = 'not supported';
+    var sendPostURL = 'not supported';
+</script>
+
+@section CustomStyles {
+    <link rel="stylesheet" href="~/css/auth-styles.css" />
+    <link rel="stylesheet" href="~/css/jquery.arcticmodal-0.3.css">
+}
+@section scripts{
+    <script src="~/js/setCryptoUrls.js"></script>
+    <script src="~/js/addEventListener-polyfill.js"></script>
+    <script src="~/js/cadesplugin_api.js"></script>
+    <script src="~/js/cryptoproviderfactory.js"></script>
+    <script src="~/js/RtsCrypto.js"></script>
+    <script src="~/js/certificateList.js"></script>
+    <script src="~/js/loginScript.js"></script>
+    <script src="~/lib/jquery/jquery.arcticmodal-0.3.min.js"></script>
+}

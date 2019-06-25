@@ -1,0 +1,71 @@
+﻿@using IdentityServer4.Extensions
+@{
+    string name = null;
+    if (!true.Equals(ViewData["signed-out"]))
+    {
+        name = Context.User?.GetDisplayName();
+    }
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>IT2 Identity Server</title>
+    <link rel="icon" type="image/x-icon" href="~/img/favicon.ico" />
+    <link rel="shortcut icon" type="image/x-icon" href="~/img/favicon.ico" />
+    <link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.css" />
+    <link rel="stylesheet" href="~/css/site.css">
+    <link rel="stylesheet" href="~/css/style.css">
+    @RenderSection("CustomStyles", false)
+</head>
+<body>
+    <div class="container">
+        <header class="main-header">
+            <section class="main-header__content">
+                <a href="#" class="main-header__logo">
+                </a>
+                <div class="main-header__titles">
+                    <h1 class="main-header__title">Поездка вместе на такси</h1>
+                </div>
+            </section>
+            <nav class="main-header__nav nav">
+                <ul class="nav__list">
+                    <li class="nav__item">
+                        <a href="#" class="nav__link">Поиск</a>
+                    </li>
+                </ul>
+            </nav>
+        </header>
+    </div>
+
+    <div class="container body-content">
+        @if (!string.IsNullOrEmpty(name))
+        {
+            <p>Здравствуйте, @name</p>
+        }
+        @RenderBody()
+    </div>
+
+    <div class="container">
+        <footer class="main-footer">
+            <section class="main-footer__info">
+                <p class="main-footer__copyright">© 2000-2019 ООО «Sevastopol Sharks».<br>Все права защищены.</p>
+                <ul class="main-footer__socials social__list">
+                    <li class="social__item social__item--fb">
+                        <a href="#" target="_blank" class="social__link">facebook</a>
+                    </li>
+                    <li class="social__item social__item--tw">
+                        <a href="#" target="_blank" class="social__link">twitter</a>
+                    </li>
+                </ul>
+            </section>
+        </footer>
+    </div>
+
+    <script src="~/lib/jquery/jquery.js"></script>
+    <script src="~/lib/bootstrap/js/bootstrap.js"></script>
+    @RenderSection("scripts", required: false)
+</body>
+</html>

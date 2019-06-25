@@ -1,0 +1,91 @@
+﻿@using SevSharks.Identity.DataAccess.Models
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.Extensions.Configuration
+
+@inject IConfiguration Configuration
+@inject SignInManager<ApplicationUser> SignInManager
+
+@model SevSharks.Identity.WebUI.Models.RegisterViewModel
+@{
+    ViewBag.Title = "Регистрация";
+
+    bool showCaptcha = ViewBag.ShowCaptcha == true;
+}
+<h2 class="text-center">@ViewBag.Title</h2>
+<div class="container col-md-6 col-md-offset-3">
+    <form asp-controller="Account" asp-action="Register" method="post">
+        @Html.AntiForgeryToken()
+        @if (Model != null && !Model.IsSucceed && Model.ErrorMessages != null && Model.ErrorMessages.Any())
+        {
+            <div class="form-group">
+                <span class="form__group-validation">
+                    @Html.Raw(string.Join(";", Model.ErrorMessages))
+                </span>
+            </div>
+        }
+        <div class="form-group">
+            @Html.LabelFor(m => m.Login, new { @class = "form-label  form__label--with" })
+            @Html.TextBoxFor(m => m.Login, new { @class = "form-control" })
+            @Html.ValidationMessageFor(m => m.Login, string.Empty)
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(m => m.Password, new { @class = "form-label  form__label--with" })
+            @Html.PasswordFor(m => m.Password, new { @class = "form-control" })
+            @Html.ValidationMessageFor(m => m.Password, string.Empty)
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(m => m.ConfirmPassword, new { @class = "form-label  form__label--with" })
+            @Html.PasswordFor(m => m.ConfirmPassword, new { @class = "form-control" })
+            @Html.ValidationMessageFor(m => m.ConfirmPassword, string.Empty)
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(m => m.Phone, new { @class = "form-label  form__label--with" })
+            @Html.TextBoxFor(m => m.Phone, new { @class = "form-control" })
+            @Html.ValidationMessageFor(m => m.Phone, string.Empty)
+        </div>
+        <div class="form-group">
+            <div class="g-recaptcha" data-sitekey=@Configuration["CSP:dataSitekey"]></div>
+        </div>
+        @Html.HiddenFor(p => p.ReturnUrl)
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+        </div>
+    </form>
+</div>
+
+<div class="col-md-6 col-md-offset-3">
+    <br />
+    <section>
+        <h4>Так же Вы можете использовать следующее:</h4>
+        <hr />
+        @{
+            var loginProviders = (await SignInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+            if (loginProviders.Count == 0)
+            {
+                <div>
+                    <p>
+                        There are no external authentication services configured. See <a href="https://go.microsoft.com/fwlink/?LinkID=532715">this article</a>
+                        for details on setting up this ASP.NET application to support logging in via external services.
+                    </p>
+                </div>
+            }
+            else
+            {
+                <form asp-action="ExternalLogin" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="form-horizontal">
+                    <div>
+                        <p>
+                            @foreach (var provider in loginProviders)
+                            {
+                                <button type="submit" class="btn btn-default m-t5px" name="provider" value="@provider.Name" title="Войти с использованием своего аккаунта @provider.DisplayName">@provider.Name</button>
+                            }
+                        </p>
+                    </div>
+                </form>
+            }
+        }
+    </section>
+</div>
+@section CustomStyles {
+    <link rel="stylesheet" href="~/css/site.css" />
+}
+<script src="https://www.google.com/recaptcha/api.js"></script>
