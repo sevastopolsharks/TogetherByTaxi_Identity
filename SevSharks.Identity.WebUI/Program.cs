@@ -56,6 +56,7 @@ namespace SevSharks.Identity.WebUI
                     .ConfigureLogging((hostingContext, logging) =>
                     {
                         logging.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
+                        logging.AddSerilog();
                         logging.AddConsole();
                         logging.AddDebug();
                         logging.AddEventSourceLogger();
